@@ -20,7 +20,6 @@ class MainActivity : AppCompatActivity() {
 
     //Room variables
     private lateinit var bookDao: BookDao
-    private lateinit var hello: List<Book>
 
     //Recycler View variables
     private lateinit var adapter: RecyclerViewAdapter
@@ -41,45 +40,38 @@ class MainActivity : AppCompatActivity() {
         //Initializing Dao -> Data Access Object
         bookDao = db.bookDao()
 
+
         scope.launch {
             //Room DB has to be used in a Coroutine Scope on the IO thread
-            testDB()
-            listAdapter()
+            addData()
+            getData()
         }
-
 
 
     }
 
 
-    suspend fun testDB() {
-
-
+    suspend fun addData() {
         //Insert
         Log.d("TAG", "*****     Inserting 3 Books     **********")
-//        bookDao.insertBook(Book(0, "Java", "Alex"))
-//        bookDao.insertBook(Book(0, "PHP", "Mike"))
-//        bookDao.insertBook(Book(0, "Kotlin", "Amelia"))
+        bookDao.insertBook(Book(0, "Java", "Alex"))
+        bookDao.insertBook(Book(0, "PHP", "Mike"))
+        bookDao.insertBook(Book(0, "Kotlin", "Amelia"))
         Log.d("TAG", "*****     Inserted 3 Books       **********")
-
-        //Query
-        val books = bookDao.getAllBooks()
-        hello = books
-
-
-        Log.d("TAG", "*****   ${books.size} books there *****")
-        for (book in books) {
-            Log.d("TAG", "id: ${book.id} name: ${book.name} author: ${book.author}")
-        }
-
-        val testUserId = bookDao.getBookByID(2)
-        Log.d("TAG", "testDB: $testUserId -> ID: ${testUserId.id}")
 
     }
 
-    fun listAdapter() {
-        adapter = RecyclerViewAdapter(hello)
+    private fun getData() {
+        listAdapter(bookDao.getAllBooks())
+    }
+
+    private fun getBookByID(id: Int): Book = bookDao.getBookByID(id)
+
+    fun listAdapter(books: List<Book>) {
+        Log.d("TAG", "listAdapter: Created List")
+        adapter = RecyclerViewAdapter(books)
         bookList.adapter = adapter
     }
 
 }
+

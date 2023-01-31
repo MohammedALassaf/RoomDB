@@ -18,7 +18,7 @@ interface BookDao {
 
     //We can also pass parameters to the function to use in the Query
     @Query("SELECT * FROM books_table WHERE id = :uid")
-    suspend fun getBookByID(uid: Int): Book
+    fun getBookByID(uid: Int): Book
 
     //Update Query is built in. Just use the Annotation "@Update"
     @Update
