@@ -11,7 +11,6 @@ import com.example.roomdb.database.BookDatabase
 import com.example.roomdb.recyclerview.RecyclerViewAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -45,6 +44,7 @@ class MainActivity : AppCompatActivity() {
             //Room DB has to be used in a Coroutine Scope on the IO thread
             addData()
             getData()
+            getBookByID(4)
         }
 
 
@@ -58,7 +58,6 @@ class MainActivity : AppCompatActivity() {
         bookDao.insertBook(Book(0, "PHP", "Mike"))
         bookDao.insertBook(Book(0, "Kotlin", "Amelia"))
         Log.d("TAG", "*****     Inserted 3 Books       **********")
-
     }
 
     private fun getData() {
