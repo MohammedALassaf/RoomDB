@@ -3,6 +3,7 @@ package com.example.roomdb
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import com.example.roomdb.database.Book
@@ -11,14 +12,16 @@ import com.example.roomdb.database.BookDatabase
 import com.example.roomdb.recyclerview.RecyclerViewAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-    //Coroutine Scope
-    private val scope = CoroutineScope(Dispatchers.IO)
 
-    //Room variables
-    private lateinit var bookDao: BookDao
+    // ViewModel
+    private lateinit var viewModel: MainViewModel
+
+    //Coroutine Scope
+    private val scope = CoroutineScope(Dispatchers.Main)
 
     //Recycler View variables
     private lateinit var adapter: RecyclerViewAdapter
@@ -30,41 +33,25 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         bookList = findViewById(R.id.list)
 
-        // Initializing Room DB
-        val db = Room.databaseBuilder(
-            applicationContext,
-            BookDatabase::class.java, "book_database"
-        ).build()
-
-        //Initializing Dao -> Data Access Object
-        bookDao = db.bookDao()
-
+        init()
 
         scope.launch {
             //Room DB has to be used in a Coroutine Scope on the IO thread
-            addData()
-            getData()
-            getBookByID(4)
+            viewModel.addData()
+
+            viewModel.getData().collect {
+                listAdapter(it)
+            }
+
+            viewModel.getBookByID(4).collect {
+                Log.d("TAG", "onCreate: $it")
+            }
         }
-
-
     }
 
-
-    suspend fun addData() {
-        //Insert
-        Log.d("TAG", "*****     Inserting 3 Books     **********")
-        bookDao.insertBook(Book(0, "Java", "Alex"))
-        bookDao.insertBook(Book(0, "PHP", "Mike"))
-        bookDao.insertBook(Book(0, "Kotlin", "Amelia"))
-        Log.d("TAG", "*****     Inserted 3 Books       **********")
+    private fun init() {
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
     }
-
-    private fun getData() {
-        listAdapter(bookDao.getAllBooks())
-    }
-
-    private fun getBookByID(id: Int): Book = bookDao.getBookByID(id)
 
     fun listAdapter(books: List<Book>) {
         Log.d("TAG", "listAdapter: Created List")
